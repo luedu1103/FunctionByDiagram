@@ -6,14 +6,6 @@ let button_not = document.getElementById('button_not');
 let button_then = document.getElementById('button_then');
 let button_if = document.getElementById('button_if');
 
-const symbols = {
-    'if': "",
-    'then': "",
-    'not': "",
-    'or': "",
-    'and': ""    
-}
-
 function putSymbol(symbol) {
     var inputField = document.getElementById("input_text");
     
@@ -41,6 +33,9 @@ button_and.addEventListener('click', function() {
 })
 
 button_ok.addEventListener('click', function() {
+    const imageContainer = document.getElementById("imageContainer");
+    imageContainer.innerHTML = '';
+    
     console.log(lexer());
     console.log(parseLogicalExpression(lexer()));
 });
@@ -58,6 +53,9 @@ function lexer(){
         else if(parentesis.includes(newText[i])){
             tokens.push(newText[i]);
         }
+        else if(newText[i] === ' '){
+            continue;
+        }
         else{
             tokens.push(newText[i]);
         }
@@ -65,6 +63,10 @@ function lexer(){
     return tokens;
 }
 
+// Array of values lol
+let arrayOfValues = [];
+
+// Arbol sintactico
 class LogicalNode {
     constructor(operator, left = null, right = null) {
         this.operator = operator;
@@ -89,7 +91,7 @@ function parseLogicalExpression(tokens) {
             const operator = tokens[index++];
             const right = parseTerm();
             node = new LogicalNode(operator, node, right);
-            console.log(node.operator);
+            // console.log(node.operator);
         }
 
         return node;
@@ -108,12 +110,71 @@ function parseLogicalExpression(tokens) {
                 throw new Error('Expected closing parenthesis');
             }
             index++;
-            console.log(node.operator);
+            // console.log(node.operator);
             return node;
         }
 
-        return new OperandNode(tokens[index++] === 'p');
+        arrayOfValues.push(tokens[index]);
+        return new OperandNode(tokens[index++]);
     }
 
-    return parseExpression();
+    const ast = parseExpression();
+
+    function printNodesInOrder(node) {
+        if (node instanceof LogicalNode) {
+            printNodesInOrder(node.left);
+            console.log(node.operator);
+            printThings(node.operator);
+            printNodesInOrder(node.right);
+        } else if (node instanceof OperandNode) {
+            console.log(node.value);
+        }
+    }
+
+    // Imprime los nodos en orden
+    printNodesInOrder(ast);
+
+    return ast;
+}
+
+function printThings(operator) {
+    let index = 0;
+    console.log(arrayOfValues);
+
+    if(operator === '¬'){
+        const newDiv = document.createElement("div");
+        newDiv.id = "images";
+        newDiv.textContent = arrayOfValues[index];
+        index++;
+        document.getElementById("imageContainer").appendChild(newDiv);
+
+        var image = document.createElement("img");
+        image.src = "/images/nishika.png"; 
+        document.getElementById("images").appendChild(image);
+    }
+    else if(operator === '∨'){
+        const newDiv = document.createElement("div");
+        newDiv.id = "images";
+        newDiv.textContent = arrayOfValues[index] + ' ' + operator + ' ' + arrayOfValues[index+1];
+        arrayOfValues[index] = arrayOfValues[index] + ' ' + operator + ' ' + arrayOfValues[index+1];
+        arrayOfValues.splice(index+1, 1)
+        index = index + 1;
+        document.getElementById("imageContainer").appendChild(newDiv);
+
+        var image = document.createElement("img");
+        image.src = "/images/Kyriu.png"; 
+        document.getElementById("imageContainer").appendChild(image);
+    }
+    else if(operator === '∧'){
+        return '∧';
+    }
+    else if(operator === '→'){
+        return '→';
+    }
+    else if(operator === '↔'){
+        return '↔';
+    }
+    else{
+        return operator;
+    }
 }
