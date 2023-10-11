@@ -1,2 +1,2 @@
 # FunctionByDiagram
-Another mini project for discrete mathematics
+Proyecto del curso Matemática Discreta
