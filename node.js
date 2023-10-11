@@ -1,6 +1,7 @@
 const graphviz = require('graphviz');
 const cors = require('cors');
 const express = require('express');
+const { findSourceMap } = require('module');
 const app = express();
 
 app.use('/dist', express.static('dist'));
@@ -64,6 +65,7 @@ const operatorImages = {
 };
 
 function parseLogicalExpression(tokens) {
+    arrayOfValues = [];
     let index = 0;
 
     function parseExpression() {
@@ -99,12 +101,57 @@ function parseLogicalExpression(tokens) {
         return new OperandNode(tokens[index++]);
     }
 
+    function printNodesInOrder(node) {
+        if (node instanceof LogicalNode) {
+            printNodesInOrder(node.left);
+            console.log(node.operator);
+            printNodesInOrder(node.right);
+        } else if (node instanceof OperandNode) {
+            console.log(node.value);
+        }
+    }
+
     const ast = parseExpression();
+    
+    // Imprime los nodos en orden
+    printNodesInOrder(ast);
+
     console.log(ast);
     
     return ast;
 }
 
+function giveValues(){
+    let any = [];
+    let key = 2**arrayOfValues.length; 
+    for(let i = 0; i < 2**arrayOfValues.length; i++){
+        let nicol = {
+            key: key,
+            value: value = []
+        };
+        nicol.key = arrayOfValues[i];
+        let cont = 0;
+        for(let j = 0; j <= (2**arrayOfValues.length)-1; j++){
+            if(cont === key){
+                cont = 0;
+            }
+            if(cont <= (key/2)-1){
+                nicol.value.push(0);
+                cont++;
+            } else if (cont <= key-1){
+                nicol.value.push(1);
+                cont++;
+            }
+        }
+        console.log(key);
+        if(i == arrayOfValues.length){
+            break;
+        }
+        key = key/2;
+        any.push(nicol);
+    }
+    return any;
+}
 
 app.post('/generate-circuit', async(req, res) => {
     try {
@@ -113,18 +160,12 @@ app.post('/generate-circuit', async(req, res) => {
         const svgContent = await parseLogicalExpression(tokens); // Generate the SVG content
         res.setHeader('Content-Type', 'image/svg+xml');
         res.send(svgContent);
+        console.log(giveValues());
     } catch (error) {
         console.error('Error generating circuit diagram:', error);
         res.status(500).send('Internal Server Error');
     }
 });
-
-// app.get('/generate-circuit', (req, res) => {
-//     const tokens = lexer(); // Assume you have a lexer function defined
-//     const svgContent = parseLogicalExpression(tokens); // Assume you have a parseLogicalExpression function defined
-//     res.setHeader('Content-Type', 'image/svg+xml');
-//     res.send(svgContent);
-// });
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
