@@ -5,11 +5,19 @@ let button_or = document.getElementById('button_or');
 let button_not = document.getElementById('button_not');
 let button_then = document.getElementById('button_then');
 let button_if = document.getElementById('button_if');
+let button_p = document.getElementById('button_p');
+let button_q = document.getElementById('button_q');
+let button_r = document.getElementById('button_r');
 
 function putSymbol(symbol) {
     var inputField = document.getElementById("input_text");
     
     inputField.value += symbol;
+}
+
+function delSymbol(){
+    var inputField = document.getElementById("input_text");
+    inputField.value = inputField.value.slice(0, -1);
 }
 
 button_if.addEventListener('click', function() {
@@ -31,6 +39,22 @@ button_or.addEventListener('click', function() {
 button_and.addEventListener('click', function() {
     putSymbol(String.fromCodePoint(0x2227));
 })
+
+button_p.addEventListener('click', function() {
+    putSymbol('p');
+});
+
+button_q.addEventListener('click', function() {
+    putSymbol('q');
+});
+
+button_r.addEventListener('click', function() {
+    putSymbol('r');
+});
+
+document.getElementById('button_del').addEventListener('click', function() {
+    delSymbol();
+});
 
 button_ok.addEventListener('click', function() {
     // Reinicia todo
@@ -55,6 +79,7 @@ button_ok.addEventListener('click', function() {
     })
     .then(svgContent => {
         // Muestra el SVG en el navegador
+        console.log(svgContent);
         imageContainer.innerHTML = svgContent;
     })
     .catch(error => {
