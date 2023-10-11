@@ -80,7 +80,11 @@ button_ok.addEventListener('click', function() {
     .then(svgContent => {
         // Muestra el SVG en el navegador
         console.log(svgContent);
-        imageContainer.innerHTML = svgContent;
+        imageContainer.innerHTML = JSON.stringify(
+            JSON.parse(svgContent),
+            null,
+            4
+        );
     })
     .catch(error => {
         console.error('Error fetching circuit diagram:', error);
